@@ -225,20 +225,39 @@
         document.querySelector("#css-ed").remove();
       }
 
-      let jsEditor = ace.edit(document.querySelector("#js-editor"));
-      jsEditor.getSession().setMode("ace/mode/javascript");
-      jsEditor.setTheme("ace/theme/dracula");
-      jsEditor.setOptions({
-        useWorker: false,
-        enableBasicAutocompletion: true,
-        enableEmmet: true,
-        minLines: 20,
-        maxLines: 30,
-      });
+      if (params.has("js")) {
+        let jsEditor = ace.edit(document.querySelector("#js-editor"));
+        jsEditor.getSession().setMode("ace/mode/javascript");
+        jsEditor.setTheme("ace/theme/dracula");
+        jsEditor.setOptions({
+          useWorker: false,
+          enableBasicAutocompletion: true,
+          enableEmmet: true,
+          minLines: 20,
+          maxLines: 30,
+        });
 
-      document.querySelector("#js-run").addEventListener("click", function () {
-        eval(jsEditor.getValue());
-      });
+        // [TODO] create one getFileContents function (with sync promise etc)
+        let url = params.get("js");
+        fetch(url).then(function (response) {
+          response
+            .text()
+            .then(function (text) {
+              jsEditor.setValue(text);
+            })
+            .catch(function (err) {
+              console.log("Fetch problem: " + err.message);
+            });
+        });
+        document
+          .querySelector("#js-run")
+          .addEventListener("click", function () {
+            eval(jsEditor.getValue());
+          });
+      } else {
+        document.querySelector("#js-tab").remove();
+        document.querySelector("#js-ed").remove();
+      }
     </script>
   </body>
 </html>
