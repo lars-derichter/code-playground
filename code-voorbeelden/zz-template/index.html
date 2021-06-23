@@ -154,9 +154,10 @@
       htmlEditor.setTheme("ace/theme/dracula");
       htmlEditor.setOptions({
         useWorker: false,
+        enableBasicAutocompletion: true,
         enableEmmet: true,
         minLines: 20,
-        maxLines: 20,
+        maxLines: 30,
       });
 
       let sheet = document.createElement("style");
@@ -166,9 +167,10 @@
       cssEditor.setTheme("ace/theme/dracula");
       cssEditor.setOptions({
         useWorker: false,
+        enableBasicAutocompletion: true,
         enableEmmet: true,
         minLines: 20,
-        maxLines: 20,
+        maxLines: 30,
       });
 
       let jsEditor = ace.edit(document.querySelector("#js-editor"));
@@ -176,9 +178,10 @@
       jsEditor.setTheme("ace/theme/dracula");
       jsEditor.setOptions({
         useWorker: false,
+        enableBasicAutocompletion: true,
         enableEmmet: true,
         minLines: 20,
-        maxLines: 20,
+        maxLines: 30,
       });
 
       htmlEditor.session.on("change", function () {
