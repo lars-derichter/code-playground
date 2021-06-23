@@ -77,7 +77,7 @@
               role="tabpanel"
               aria-labelledby="css-tab"
             >
-              <div id="css-editor">strong { color: red; }</div>
+              <div id="css-editor"></div>
             </div>
             <div
               class="tab-pane fade"
@@ -187,18 +187,43 @@
         document.querySelector("#html-ed").remove();
       }
 
-      let sheet = document.createElement("style");
-      document.body.appendChild(sheet);
-      let cssEditor = ace.edit(document.querySelector("#css-editor"));
-      cssEditor.getSession().setMode("ace/mode/css");
-      cssEditor.setTheme("ace/theme/dracula");
-      cssEditor.setOptions({
-        useWorker: false,
-        enableBasicAutocompletion: true,
-        enableEmmet: true,
-        minLines: 20,
-        maxLines: 30,
-      });
+      if (params.has("css")) {
+        let sheet = document.createElement("style");
+
+        let cssEditor = ace.edit(document.querySelector("#css-editor"));
+        cssEditor.getSession().setMode("ace/mode/css");
+        cssEditor.setTheme("ace/theme/dracula");
+        cssEditor.setOptions({
+          useWorker: false,
+          enableBasicAutocompletion: true,
+          enableEmmet: true,
+          minLines: 20,
+          maxLines: 30,
+        });
+
+        cssEditor.session.on("change", function () {
+          sheet.innerHTML = cssEditor.getValue();
+        });
+
+        // [TODO] create one getFileContents function (with sync promise etc)
+        let url = params.get("css");
+        fetch(url).then(function (response) {
+          response
+            .text()
+            .then(function (text) {
+              cssEditor.setValue(text);
+              sheet.innerHTML = text;
+            })
+            .catch(function (err) {
+              console.log("Fetch problem: " + err.message);
+            });
+        });
+
+        document.body.appendChild(sheet);
+      } else {
+        document.querySelector("#css-tab").remove();
+        document.querySelector("#css-ed").remove();
+      }
 
       let jsEditor = ace.edit(document.querySelector("#js-editor"));
       jsEditor.getSession().setMode("ace/mode/javascript");
@@ -211,15 +236,9 @@
         maxLines: 30,
       });
 
-      cssEditor.session.on("change", function () {
-        sheet.innerHTML = cssEditor.getValue();
-      });
-
       document.querySelector("#js-run").addEventListener("click", function () {
         eval(jsEditor.getValue());
       });
-
-      sheet.innerHTML = cssEditor.getValue();
     </script>
   </body>
 </html>
