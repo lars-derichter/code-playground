@@ -199,10 +199,10 @@
       fetch("html.html").then(function (response) {
         response.text().then(function (text) {
           htmlEditor.setValue(text);
+          output.innerHTML = text;
         });
       });
 
-      output.innerHTML = htmlEditor.getValue();
       sheet.innerHTML = cssEditor.getValue();
     </script>
   </body>
