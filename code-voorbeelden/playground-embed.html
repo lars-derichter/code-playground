@@ -149,16 +149,43 @@
       let Emmet = require("ace/ext/emmet");
 
       let output = document.querySelector("#output");
-      let htmlEditor = ace.edit(document.querySelector("#html-editor"));
-      htmlEditor.getSession().setMode("ace/mode/html");
-      htmlEditor.setTheme("ace/theme/dracula");
-      htmlEditor.setOptions({
-        useWorker: false,
-        enableBasicAutocompletion: true,
-        enableEmmet: true,
-        minLines: 20,
-        maxLines: 30,
-      });
+
+      const queryString = window.location.search;
+      let params = new URLSearchParams(queryString);
+
+      if (params.has("html")) {
+        let htmlEditor = ace.edit(document.querySelector("#html-editor"));
+        htmlEditor.getSession().setMode("ace/mode/html");
+        htmlEditor.setTheme("ace/theme/dracula");
+        htmlEditor.setOptions({
+          useWorker: false,
+          enableBasicAutocompletion: true,
+          enableEmmet: true,
+          minLines: 20,
+          maxLines: 30,
+        });
+
+        htmlEditor.session.on("change", function () {
+          output.innerHTML = htmlEditor.getValue();
+        });
+
+        // [TODO] create one getFileContents function (with sync promise etc)
+        let url = params.get("html");
+        fetch(url).then(function (response) {
+          response
+            .text()
+            .then(function (text) {
+              htmlEditor.setValue(text);
+              output.innerHTML = text;
+            })
+            .catch(function (err) {
+              console.log("Fetch problem: " + err.message);
+            });
+        });
+      } else {
+        document.querySelector("#html-tab").remove();
+        document.querySelector("#html-ed").remove();
+      }
 
       let sheet = document.createElement("style");
       document.body.appendChild(sheet);
@@ -184,23 +211,12 @@
         maxLines: 30,
       });
 
-      htmlEditor.session.on("change", function () {
-        output.innerHTML = htmlEditor.getValue();
-      });
-
       cssEditor.session.on("change", function () {
         sheet.innerHTML = cssEditor.getValue();
       });
 
-      document.getElementById("js-run").addEventListener("click", function () {
+      document.querySelector("#js-run").addEventListener("click", function () {
         eval(jsEditor.getValue());
-      });
-
-      fetch("html.html").then(function (response) {
-        response.text().then(function (text) {
-          htmlEditor.setValue(text);
-          output.innerHTML = text;
-        });
       });
 
       sheet.innerHTML = cssEditor.getValue();
